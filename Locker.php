@@ -18,7 +18,7 @@ class Locker
     private $privateKey;
     // 锁状态
     const STATUS_LOCK = 1;
-    const STATUS_UNLOK = 0;
+    const STATUS_UNLOCK = 0;
 
     public function __construct(\Redis $redis, $key, $timeout = 10)
     {
@@ -27,7 +27,7 @@ class Locker
         $this->timeout = $timeout;
 
         // 初始化锁状态
-        $this->status = self::STATUS_UNLOK;
+        $this->status = self::STATUS_UNLOCK;
 
         // 内部标示
         $this->privateKey = $this->privateKey();
@@ -103,7 +103,7 @@ class Locker
                 $this->redis->del($this->key);
             }
 
-            $this->status = self::STATUS_UNLOK;
+            $this->status = self::STATUS_UNLOCK;
         }
     }
 
