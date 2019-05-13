@@ -1,0 +1,12 @@
+{
+    "name": "linvanda/locker",
+    "description": "locker by redis",
+    "type": "library",
+    "authors": [
+        {
+            "name": "linvanda",
+            "email": "1049180458@qq.com"
+        }
+    ],
+    "require": {}
+}
