@@ -8,5 +8,10 @@
             "email": "1049180458@qq.com"
         }
     ],
-    "require": {}
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Weiche\\DistributeLocker\\": "src/"
+        }
+    }
 }

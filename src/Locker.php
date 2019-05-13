@@ -1,7 +1,10 @@
 <?php
 
+namespace Weiche\DistributeLocker;
+
 /**
  * 锁，基于 Redis 实现
+ * 目前的实现版本不涉及分布式 Redis
  * Class Locker
  */
 class Locker
