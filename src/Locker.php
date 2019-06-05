@@ -1,6 +1,6 @@
 <?php
 
-namespace Wecar\DistributeLocker;
+namespace Devar\DistributeLocker;
 
 /**
  * 锁，基于 Redis 实现

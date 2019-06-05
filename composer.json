@@ -1,5 +1,5 @@
 {
-    "name": "linvanda/locker",
+    "name": "devar/locker",
     "description": "locker by redis",
     "type": "library",
     "authors": [
@@ -11,7 +11,7 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "Wecar\\DistributeLocker\\": "src/"
+            "Devar\\DistributeLocker\\": "src/"
         }
     }
 }
