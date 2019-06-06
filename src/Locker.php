@@ -1,6 +1,6 @@
 <?php
 
-namespace Devar\DistributeLocker;
+namespace Dev\Locker;
 
 /**
  * 锁，基于 Redis 实现
