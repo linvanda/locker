@@ -1,5 +1,5 @@
 {
-    "name": "devar/locker",
+    "name": "dev/locker",
     "description": "locker by redis",
     "type": "library",
     "authors": [
