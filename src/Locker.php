@@ -112,11 +112,7 @@ class Locker
 
     private function willCheck()
     {
-        // 5s 以内超时的不检测
-        if ($this->timeout <= 5) {
-            return false;
-        }
-        return mt_rand(1, 20) === 10;
+        return mt_rand(1, 10) === 5;
     }
 
     private function privateKey()
