@@ -23,7 +23,7 @@ class Locker
     const STATUS_LOCK = 1;
     const STATUS_UNLOCK = 0;
 
-    public function __construct(\Redis $redis, $key, $timeout = 10)
+    public function __construct(\Redis $redis, $key, $timeout = 5)
     {
         $this->redis = $redis;
         $this->key = $this->keyPrefix . $key;
@@ -112,7 +112,11 @@ class Locker
 
     private function willCheck()
     {
-        return mt_rand(1, 10) === 5;
+        // 5s 以内超时的不检测
+        if ($this->timeout <= 5) {
+            return false;
+        }
+        return mt_rand(1, 20) === 10;
     }
 
     private function privateKey()
