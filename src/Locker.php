@@ -9,6 +9,9 @@ namespace Dev\Locker;
  */
 class Locker
 {
+    const STATUS_LOCK = 1;
+    const STATUS_UNLOCK = 0;
+
     private $redis;
     // 锁的公开标示
     private $key;
@@ -19,9 +22,6 @@ class Locker
     private $status;
     // 锁对象内部标示，每个对象不同
     private $privateKey;
-    // 锁状态
-    const STATUS_LOCK = 1;
-    const STATUS_UNLOCK = 0;
 
     public function __construct(\Redis $redis, $key, $timeout = 5)
     {
@@ -54,38 +54,9 @@ class Locker
             return true;
         }
 
-        $now = time();
-        $val = [$now + $this->timeout, $this->privateKey];
-
-        if ($this->redis->setnx($this->key, json_encode($val))) {
+        if ($this->redis->set($this->key, $this->privateKey, ['nx', 'ex' => $this->timeout])) {
             $this->status = self::STATUS_LOCK;
-            // 设置过期时间，防止异常死锁
-            $this->redis->expire($this->key, $this->timeout);
-
             return true;
-        } else {
-            /**
-             * 获取锁失败，以一定的概率对上家的锁进行健康检查
-             * 原则上，上家执行完毕会解锁，且在加锁时设置了过期时间
-             * 但不排除上家在设置过期时间之前和 Redis 断开了连接（或其它问题）导致后续操作失败，产生永久锁
-             * 因而这里采用概率性的容错处理
-             */
-            if ($this->willCheck()) {
-                $lockValStr = $this->redis->get($this->key);
-                $lockValue = $lockValStr ? json_decode($lockValStr, true) : [];
-                if ($lockValue[0] < $now) {
-                    // 上家的锁超时了，此处尝试加锁。此处需要用getSet实现乐观锁事务
-                    $oldLockValStr = $this->redis->getSet($this->key, json_encode($val));
-
-                    // 需检查本次修改之前的值，保证不会有其它进程（请求）同时修改该值
-                    if ($oldLockValStr === $lockValStr) {
-                        $this->status = self::STATUS_LOCK;
-                        $this->redis->expire($this->key, $this->timeout);
-
-                        return true;
-                    }
-                }
-            }
         }
 
         return false;
@@ -98,21 +69,15 @@ class Locker
      */
     public function unlock()
     {
-        if ($this->status === self::STATUS_LOCK) {
-            $lockValStr = $this->redis->get($this->key);
-            $lockValue = $lockValStr ? json_decode($lockValStr, true) : [];
-
-            if ($lockValue[1] === $this->privateKey) {
-                $this->redis->del($this->key);
-            }
-
-            $this->status = self::STATUS_UNLOCK;
+        if ($this->status !== self::STATUS_LOCK) {
+            return;
         }
-    }
 
-    private function willCheck()
-    {
-        return mt_rand(1, 10) === 5;
+        if ($this->redis->get($this->key) === $this->privateKey) {
+            $this->redis->del($this->key);
+        }
+
+        $this->status = self::STATUS_UNLOCK;
     }
 
     private function privateKey()
